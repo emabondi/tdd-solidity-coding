@@ -4,6 +4,7 @@ import { ethers } from "hardhat";
 import { HelloWorld } from "../typechain-types";
 // https://hardhat.org/hardhat-network-helpers/docs/overview
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { contract } from "web3/lib/commonjs/eth.exports";
 
 // https://mochajs.org/#getting-started
 describe("HelloWorld", function () {
@@ -61,17 +62,29 @@ describe("HelloWorld", function () {
   });
 
   it("Should execute transferOwnership correctly", async function () {
-    // TODO
-    throw Error("Not implemented");
+    const { helloWorldContract, accounts } = await loadFixture(deployContract);
+
+    await helloWorldContract.connect(accounts[0]).transferOwnership(accounts[1].address)
+	const contractOwner = await helloWorldContract.owner();
+	expect(contractOwner).to.equal(accounts[1].address);
   });
 
   it("Should not allow anyone other than owner to change text", async function () {
-    // TODO
-    throw Error("Not implemented");
+    const { helloWorldContract, accounts } = await loadFixture(deployContract);
+	const toSend = "World Hello!";
+    await expect(
+      helloWorldContract
+        .connect(accounts[1])
+        .changeText(ethers.encodeBytes32String(toSend))
+    ).to.be.revertedWith("Caller is not the owner");
   });
 
   it("Should change text correctly", async function () {
-    // TODO
-    throw Error("Not implemented");
+    const { helloWorldContract, accounts } = await loadFixture(deployContract);
+
+	const toSend = "World Hello!";
+    await helloWorldContract.connect(accounts[0]).changeText(ethers.encodeBytes32String(toSend))
+	const contractText = await helloWorldContract.helloWorld();
+	expect(toSend).to.equal(ethers.decodeBytes32String(contractText));
   });
 });

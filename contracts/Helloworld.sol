@@ -8,6 +8,11 @@ contract HelloWorld {
 	address public owner;
     bytes32 private text;
 
+	modifier onlyOwner {
+	require(msg.sender == owner, "Caller is not the owner");
+	_;
+	}
+
 	constructor() {
 		text = "Hello World!";
 		owner = msg.sender;
@@ -16,8 +21,11 @@ contract HelloWorld {
 	function helloWorld() public view returns(bytes32) {
 		return text;
 	}
+	function transferOwnership( address newOwner) public onlyOwner {
+		owner = newOwner;
+	}
 
-    /*function retrieve() public view returns (bytes32){
-        return text;
-    }*/
+	function changeText( bytes32 newText) public onlyOwner {
+		text = newText;
+	}
 }
